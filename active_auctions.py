@@ -1,7 +1,6 @@
 from re import L
 import helper_functions as h
-import sqlite3
-import current_auctions as ca
+import active_auctions as ca
 from datetime import datetime
 
 class Item():
@@ -68,13 +67,11 @@ def getHighestBid(listOfBids):
     else:
         return listOfBids[-1]['amount']
 
-def getItemsAndWriteToDb():
+def getItemsAndWriteToDb(cur):
     response = h.getJson(0)
     numPages = response['totalPages']
-
-    con = sqlite3.connect("Auctions")
-    cur = con.cursor()
-    h.checkIfTableExists(cur)
+    # ensure that the table inside of the database exists, if it doesn't it creates it
+    h.checkIfTableExists(cur,"currentAuctions",tableType="present")
 
 
     for x in range(numPages - 1):
@@ -106,19 +103,9 @@ def getItemsAndWriteToDb():
             # I return as tuples because that is what the sqlite wants in order to 
             # put into a database
             listOfObjs.append(obj.returnAsTuple())
-        query = cur.executemany("INSERT INTO currentAuctions VALUES (?,?,?,?,?,?,?,?,?)", listOfObjs)
-
-    # setting up connection to currentAuctions db
-    
-    # ensure that the table inside of the database exists, if it doesn't it creates it
-    h.checkIfTableExists(cur)
-
-    
+        query = cur.executemany("INSERT INTO currentAuctions VALUES (?,?,?,?,?,?,?,?,?);", listOfObjs)
 
     query = cur.execute("SELECT * FROM currentAuctions")
 
     for x in query:
         print(x)
-
-    con.commit()
-    con.close
