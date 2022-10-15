@@ -1,5 +1,5 @@
 from re import L
-import helperFunctions as h
+import helper_functions as h
 import sqlite3
 import current_auctions as ca
 from datetime import datetime
